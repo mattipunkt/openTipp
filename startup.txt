@@ -1,0 +1,5 @@
+
+make migrations
+migrate
+collect static
+python manage.py qcluster

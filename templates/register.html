@@ -1,0 +1,23 @@
+{% load django_bootstrap5 %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+<div class="modal-header">
+  Registrieren<button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="modal"
+    aria-label="Close"
+  ></button>
+</div>
+<div class="modal-body">
+  <form action="/register/" method="post" class="form">
+    <!-- prettier-ignore -->
+    {% csrf_token %}
+    {% bootstrap_form registerForm layout="floating" %}
+   {% bootstrap_button button_type="submit" content="Registrierung abschicken" %}
+  </form>
+</div>
+<!--
+<div class="modal-footer"></div>-->

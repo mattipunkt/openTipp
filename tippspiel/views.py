@@ -1,0 +1,101 @@
+from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.shortcuts import render, redirect
+from . import forms
+from django.contrib import messages
+import asyncio
+from . import tasks
+
+# Create your views here.
+task_id = None
+
+
+def index(request):
+    return render(request, 'base.html')
+
+
+def register(request):
+    registerform = forms.RegisterForm()
+    if request.method == 'POST':
+        registerform = forms.RegisterForm(request.POST)
+        if registerform.is_valid():
+            username = request.POST['username']
+            first_name = request.POST['first_name']
+            email = request.POST['email']
+            password = request.POST['password']
+            user = User.objects.create_user(username=username, email=email, password=password, first_name=first_name,
+                                            is_active=False)
+            user.save()
+            messages.add_message(request, messages.SUCCESS, 'Deine Registrierung war erfolgreich. Der Admin muss jetzt '
+                                                            'deinen Account bestätigen. Wenn dies geschehen ist, erhälst du '
+                                                            'eine E-Mail. Dann kannst du fleißig lostippen.')
+        else:
+            messages.add_message(request, messages.ERROR, 'Die Eingabe war nicht erfolgreich! Bitte die Registrierung '
+                                                          'erneut versuchen!')
+        return redirect("/")
+    else:
+        return render(request, 'register.html', {
+            "registerForm": registerform,
+        })
+
+
+def loginPage(request):
+    if request.method == 'POST':
+        user = authenticate(request, username=request.POST.get('username'), password=request.POST.get('password'))
+        if user is not None:
+            login(request, user)
+            messages.add_message(request, messages.SUCCESS, "Du wurdest erfolgreich angemeldet!")
+            return redirect('/')
+        else:
+            messages.add_message(request, messages.ERROR,
+                                 "Entweder ist dein Benutzername oder Passwort falsch oder dein Account wurde noch nicht freigeschaltet. Hast du schon eine Mail bekommen? Bitte erneut versuchen.")
+            return redirect('/')
+    else:
+        return render(request, 'login.html', {
+            "loginForm": forms.LoginForm,
+        })
+
+
+def logoutUser(request):
+    logout(request)
+    messages.add_message(request, messages.SUCCESS, "Du wurdest erfolgreich ausgeloggt. Bis bald!")
+    return redirect('/')
+
+
+def adminBackend(request):
+    if request.user.is_superuser:
+        in_users = User.objects.all().filter(is_active=False)
+        active_users = User.objects.all().filter(is_active=True)
+        return render(request, 'admin.html', {
+            'in_users': in_users,
+            'active_users': active_users,
+            'daemon_running': tasks.is_task_scheduled(),
+            'last_time_running': tasks.last_time_running(),
+        })
+    return render(request, 'admin.html')
+
+
+def userManager(request):
+    if request.user.is_superuser:
+        if request.method == "GET":
+            action = request.GET.get('action')
+            if action == "activate":
+                user_id = request.GET.get('id')
+                activate = request.GET.get('activate')
+                user = User.objects.get(pk=user_id)
+                if activate == "true":
+                    user.is_active = True
+                    user.save()
+                elif activate == "false":
+                    user.delete()
+            if action == "superuser":
+                user_id = request.GET.get('id')
+                activate = request.GET.get('activate')
+                user = User.objects.get(pk=user_id)
+                if activate == "true":
+                    user.is_superuser = True
+                    user.save()
+        return redirect("/admin")
+    else:
+        return redirect("/")
+

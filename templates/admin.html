@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Admin-Einstellungen{% endblock title %}
+{% block body %}
+    {% if user.is_superuser %}
+        <h2>Admin-Einstellungen</h2>
+        {% if in_users %}
+        <h3>Neue Nutzer</h3>
+        <p>Diese Nutzer müssen bestätigt werden, damit sie sich anmelden können.</p>
+        <ul class="list-group">
+            {% for user in in_users %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                       <div>
+                           <b>Name:</b> {{ user.first_name }}<br>
+                            <b>Nutzername: </b>{{ user.username }}<br>
+                            <b>E-Mail-Adresse: </b>{{ user.email }}<br>
+                       </div>
+                        <div>
+                            <a type="button" class="btn btn-success btn-sm" href="/users?action=activate&id={{ user.id }}&activate=true">Nutzer aktivieren</a><br>
+                            <a type="button" class="btn btn-danger btn-sm" href="/users?action=activate&id={{ user.id }}&activate=false" style="margin-top: 10px">Nutzer löschen</a>
+                        </div>
+                    </div>
+
+
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif  %}
+
+        <br>
+        <h3>User-Liste</h3>
+        <ul class="list-group">
+            {% for user in active_users %}
+                {% if user.is_superuser %}
+                <li class="list-group-item list-group-item-info">
+                {% else %}
+                    <li class="list-group-item">
+                {% endif %}
+                    <div class="d-flex justify-content-between">
+                       <div>
+                           <b>Name:</b> {{ user.first_name }}<br>
+                            <b>Nutzername: </b>{{ user.username }}<br>
+                            <b>E-Mail-Adresse: </b>{{ user.email }}<br>
+                       </div>
+                        <div>
+                            <a type="button" class="btn btn-danger btn-sm" href="/users?action=activate&id={{ user.id }}&activate=false">Nutzer löschen</a>
+                            {% if not user.is_superuser %}
+                                <br>
+                            <a type="button" class="btn btn-warning btn-sm" href="/users?action=superuser&id={{ user.id }}&activate=true" style="margin-top: 10px">Admin machen</a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+
+            </li>
+                </ul>
+            {% endfor %}
+
+        <br>
+
+        <div>
+        {% if last_time_running %}
+            <h3>Daemon</h3>
+            <p>Der Daemon lief zuletzt um: {{ last_time_running }}</p>
+        {% endif %}
+        </div>
+    {% else %}
+
+    {% endif %}
+
+
+{% endblock body %}
