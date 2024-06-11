@@ -5,13 +5,16 @@ from . import forms
 from django.contrib import messages
 import asyncio
 from . import tasks
+from . import models
 
 # Create your views here.
 task_id = None
 
 
 def index(request):
-    return render(request, 'base.html')
+    return render(request, 'base.html', {
+        "games": models.Game.objects.all(),
+    })
 
 
 def register(request):
@@ -99,3 +102,8 @@ def userManager(request):
     else:
         return redirect("/")
 
+
+def gamesView(request):
+    return render(request, 'games.html', {
+        "games": models.Game.objects.all(),
+    })

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block body %}
+    <h4>Spielübersicht</h4>
+    {% for game in games %}
+    <div class="row ">
+    <div class="col-sm-5 text-end">
+        {{ game.team1.name }}
+    </div>
+    <div class="col-sm-1 mb-2">
+        <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 0;">
+    </div>
+    <div class="col-sm-1 mb-2">
+        <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 100%;">
+    </div>
+    <div class="col">
+           {{ game.team2.name }}
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}
