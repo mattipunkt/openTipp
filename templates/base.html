@@ -28,9 +28,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/games/">Spiele</a>
                     </li>
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="/bet/">Tippen</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/bet/">Statistik</a>
+                    </li>
+                    {% endif %}
                     {% if user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="/admin/">Admin</a>

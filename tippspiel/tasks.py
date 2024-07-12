@@ -49,8 +49,22 @@ def update_database():
             gametype = game['group']['groupName']
             matchtime = game['matchDateTime']
             matchtime = datetime.strptime(matchtime, "%Y-%m-%dT%H:%M:%S")
-            new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=gametype)
-            new_game[0].save()
+            if game['matchIsFinished']:
+                print('Match is finished')
+
+                points_team1 = 0
+                points_team2 = 0
+                for k in game['matchResults']:
+                    points_team1 = k['pointsTeam1']
+                    points_team2 = k['pointsTeam2']
+                update_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=gametype)
+                update_game[0].team1_score = points_team1
+                update_game[0].team2_score = points_team2
+                update_game[0].match_is_finished = True
+                update_game[0].save()
+            else:
+                new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=gametype)
+                new_game[0].save()
 
 
 def get_json(url):

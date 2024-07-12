@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import platform
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -119,9 +120,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+if platform.system() == 'Windows':
+    CUSTOM_OS_FILENAME = 'C:/tmp/huey_tipp.db'
+else:
+    CUSTOM_OS_FILENAME = '/tmp/huey_tipp.db'
+
 HUEY = {
     'huey_class': 'huey.SqliteHuey',  # Huey implementation to use.
-    'filename': '/tmp/heuy_tipp.db',
+    'filename': CUSTOM_OS_FILENAME,
     'immediate': False,
     'consumer': {
         'workers': 1,

@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 
 # Create your models here.
 class Team(models.Model):
@@ -21,11 +21,11 @@ class Game(models.Model):
 
 class Vote(models.Model):
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
-#    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     team1_score = models.IntegerField(default=0)
     team2_score = models.IntegerField(default=0)
 
 
 class Points(models.Model):
-#    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     points = models.IntegerField(default=0)
