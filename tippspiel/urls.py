@@ -12,4 +12,5 @@ urlpatterns = [
     path('admin/', views.adminBackend, name="admin"),
     path('users', views.userManager, name="activate"),
     path('games/', views.gamesView, name="games"),
+    path('bet/', views.betView, name="bet"),
 ]

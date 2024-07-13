@@ -3,8 +3,12 @@
     Spielübersicht
 {% endblock %}
 {% block body %}
-    <h4>Spielübersicht</h4>
+    <h2>Spielübersicht</h2>
+    <br>
+    {% for gtype in gametype %}
+        <p class="font-monospace text-uppercase"><b>{{ gtype.name }}</b></p>
     {% for game in games %}
+    {% if gtype.id == game.type.id %}
     <div class="row mb-3 align-self-center">
         <div class="col-sm-1 align-baseline">
             {{ game.team1.name }}
@@ -27,5 +31,8 @@
             {{ game.team2.name }}
         </div>
     </div>
+    {% endif %}
+    {% endfor %}
+        <br>
     {% endfor %}
 {% endblock %}

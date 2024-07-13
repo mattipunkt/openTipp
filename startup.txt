@@ -1,3 +1,5 @@
+https://dev.to/thedevtimeline/how-to-send-django-form-with-ajax-4bpo
+
 
 make migrations
 migrate

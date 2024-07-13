@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import requests
 import json
 from . import models
+from django.utils import timezone
 
 
 @periodic_task(crontab(minute=5), expires=timedelta(seconds=0))
@@ -16,6 +17,17 @@ def change_game():
     with open("/tmp/tipptime", "w") as file:
         file.write(str(datetime.now()))
     update_database()
+
+
+def update_current_tab():
+    currtime = timezone.now()
+    for game in models.Game.objects.all():
+        if game.time > currtime:
+            currgroup = game.type.id
+        break
+    with open("/tmp/currtab", "w") as file:
+        file.write(str(currgroup))
+
 
 
 def update_database():
@@ -46,25 +58,26 @@ def update_database():
                                                       icon_url=team1_icon_url)
             team2 = models.Team.objects.get_or_create(id=game['team2']['teamId'], name=game['team2']['teamName'],
                                                       icon_url=team2_icon_url)
-            gametype = game['group']['groupName']
+            type_of_game = models.GameType.objects.get_or_create(name=game['group']['groupName'])
             matchtime = game['matchDateTime']
             matchtime = datetime.strptime(matchtime, "%Y-%m-%dT%H:%M:%S")
             if game['matchIsFinished']:
-                print('Match is finished')
-
+                # print('Match is finished')
                 points_team1 = 0
                 points_team2 = 0
                 for k in game['matchResults']:
                     points_team1 = k['pointsTeam1']
                     points_team2 = k['pointsTeam2']
-                update_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=gametype)
+                update_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=type_of_game[0])
                 update_game[0].team1_score = points_team1
                 update_game[0].team2_score = points_team2
                 update_game[0].match_is_finished = True
                 update_game[0].save()
             else:
-                new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=gametype)
+                new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, type=type_of_game[0])
                 new_game[0].save()
+
+    update_current_tab()
 
 
 def get_json(url):

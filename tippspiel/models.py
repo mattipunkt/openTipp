@@ -9,6 +9,10 @@ class Team(models.Model):
     icon_url = models.CharField(max_length=50)
 
 
+class GameType(models.Model):
+    name = models.CharField(max_length=50, default="Kein Typename")
+
+
 class Game(models.Model):
     team1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="team1")
     team2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="team2")
@@ -16,7 +20,8 @@ class Game(models.Model):
     team2_score = models.IntegerField(default=0)
     time = models.DateTimeField(default=None, null=True)
     match_is_finished = models.BooleanField(default=False)
-    type = models.CharField(max_length=60)
+    type = models.ForeignKey(GameType, on_delete=models.CASCADE)
+
 
 
 class Vote(models.Model):

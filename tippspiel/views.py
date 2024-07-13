@@ -6,6 +6,7 @@ from django.contrib import messages
 import asyncio
 from . import tasks
 from . import models
+from . import utils
 
 # Create your views here.
 task_id = None
@@ -105,5 +106,22 @@ def userManager(request):
 
 def gamesView(request):
     return render(request, 'games.html', {
+        "gametype": models.GameType.objects.all(),
         "games": models.Game.objects.all(),
     })
+
+
+def betView(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            user_votes = models.Vote.objects.select_related('game').filter(user=request.user)
+            user_votes_dict = {vote.game.id: vote for vote in user_votes}
+            return render(request, 'bet.html', {
+                # "activegroup": utils.get_current_tab(),
+                "user_votes_dict": user_votes_dict,
+                "gametype": models.GameType.objects.all(),
+                "games": models.Game.objects.all(),
+            })
+        else:
+            messages.add_message(request, messages.INFO, "Du musst angemeldet sein, um diese Seite zu besuchen!")
+            return redirect("/")
