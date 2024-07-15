@@ -4,69 +4,85 @@
     Spielübersicht
 {% endblock %}
 {% block body %}
-    <h2>Tippen!</h2>
+    <div class="d-flex justify-content-between">
+        <h2>Tippen!</h2>
+        <button class="btn btn-primary">Änderungen speichern!</button>
+    </div>
+
     <p>Hier kannst du für alle Spiele tippen!</p>
     <br>
 
 
 
-    <!-- NAVBAR for GAME TYPES -->
+    <!-- NAVBAR for GAME TYPES
         <ul class="nav nav-tabs" id="myTab">
         {% for gtype in gametype %}
             <li class="nav-item">
-                <a href="#gtype-{{ gtype.id }}" class="nav-link " data-bs-toggle="tab">{{ gtype.name }}</a>
+                <a href="#gtype-{{ gtype.id }}" class="nav-link" data-bs-toggle="tab">{{ gtype.name }}</a>
             </li>
         {% endfor %}
         </ul>
-
-
-
-
-    <!-- GAME TYPE PARTS -->
-    <div class="tab-content">
+     -->
+    <ul class="nav nav-tabs" role="tablist">
         {% for gtype in gametype %}
-        <div class="tab-pane fade active" id="gtype-{{ gtype.id }}">
-            <br>
-            <p class="font-monospace text-uppercase"><b>{{ gtype.name }}</b></p>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="gtype-tab-{{ gtype.id }}" data-bs-toggle="tab" href="#gtype-{{ gtype.id }}" role="tab" aria-controls="simple-tabpanel-0" aria-selected="true">{{ gtype.name }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+
+
+    <div class="tab-content pt-3" id="tab-content">
+    {% for gtype in gametype %}
+      <div class="tab-pane" id="gtype-{{ gtype.id }}" role="tabpanel" aria-labelledby="simple-tab-1">
+          <p class="font-monospace text-uppercase"><b>{{ gtype.name }}</b></p>
             {% for game in games %}
             {% if gtype.id == game.type.id %}
-            <div class="row mb-3 align-self-center">
-                <div class="col-sm-1 align-baseline align-right">
-                    {{ game.team1.name }}
-                </div>
-                <div class="col-auto">
-                    <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 0;">
-                </div>
-                <div class="col-3">
-                    {% with vote=user_votes_dict|get_item:game.id %}
-                        {% if vote %}
-                            Dein Tipp: {{ vote.team1_score }} - {{ vote.team2_score }}
-                        {% else %}
-                            {% if game.match_is_finished %}
-                            <div class="d-flex">
-                                <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" placeholder="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" placeholder="-" disabled>
-                            </div>
+                <div class="row mb-3 align-self-center">
+                    <div class="col-sm-1 align-baseline align-right">
+                        {{ game.team1.name }}
+                    </div>
+                    <div class="col-auto">
+                        <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 0;" alt="{{ game.team1.name }}-flag">
+                    </div>
+                    <div class="col-3">
+                        {% with vote=user_votes_dict|get_item:game.id %}
+                            {% if vote %}
+                                {% if game.match_is_finished %}
+                                    <div class="d-flex">
+                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" placeholder="{{ vote.team1.score }}" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" placeholder="{{ vote.team2.score }}" disabled>
+                                    </div>
+                                {% else %}
+                                    <div class="d-flex">
+                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}">
+                                    </div>
+                                {% endif %}
                             {% else %}
-                            <div class="d-flex">
-                                <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}">
-                            </div>
+                                {% if game.match_is_finished %}
+                                    <div class="d-flex">
+                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" placeholder="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" placeholder="-" disabled>
+                                    </div>
+                                {% else %}
+                                    <div class="d-flex">
+                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}">
+                                    </div>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    {% endwith %}
+                        {% endwith %}
+                    </div>
+                    <div class="col-auto">
+                        <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 100%;">
+                    </div>
+                    <div class="col">
+                        {{ game.team2.name }}
+                    </div>
                 </div>
-                <div class="col-auto">
-                    <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 100%;">
-                </div>
-                <div class="col">
-                    {{ game.team2.name }}
-                </div>
-            </div>
+            {% else %}
             {% endif %}
             {% endfor %}
-            <br>
-        </div>
-        {% endfor %}
-        </div>
+      </div>
+    {% endfor %}
+    </div>
 <script>
 
 </script>
