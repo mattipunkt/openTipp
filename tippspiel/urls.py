@@ -13,4 +13,5 @@ urlpatterns = [
     path('users', views.userManager, name="activate"),
     path('games/', views.gamesView, name="games"),
     path('bet/', views.betView, name="bet"),
+    path('stats/', views.statisticsView, name="stats"),
 ]

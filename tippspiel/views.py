@@ -133,12 +133,13 @@ def betView(request):
             if request.method == 'POST':
                 data = json.load(request)
                 test = dict(data)
-                print(test)
+                # print(test)
                 for vote in test:
-                    print(vote)
+                    # print(vote)
                     if models.Game.objects.get(pk=vote).match_is_finished:
-                        print("Game is finished")
-                        messages.add_message(request, messages.WARNING, "Du sollst nicht für ein Spiel tippen, das schon beendet wurde, du Schlawiner!")
+                        # print("Game is finished")
+                        messages.add_message(request, messages.WARNING,
+                                             "Du sollst nicht für ein Spiel tippen, das schon beendet wurde, du Schlawiner!")
                         return JsonResponse({'status': 'Match finished!'})
                     else:
                         game_id = vote
@@ -152,8 +153,9 @@ def betView(request):
                             team_2_vote = None
                         else:
                             team_2_vote = vote['team2_vote']
-                        vote_obj = models.Vote.objects.get_or_create(user=request.user, game=models.Game.objects.get(pk=game_id))
-                        print(vote_obj[1])
+                        vote_obj = models.Vote.objects.get_or_create(user=request.user,
+                                                                     game=models.Game.objects.get(pk=game_id))
+                        # print(vote_obj[1])
                         vote_obj = vote_obj[0]
                         vote_obj.team1_score = team_1_vote
                         vote_obj.team2_score = team_2_vote
@@ -161,3 +163,10 @@ def betView(request):
                 return JsonResponse({'status': 'Votes registered!'})
         else:
             return HttpResponseBadRequest('Invalid request')
+
+
+def statisticsView(request):
+    if request.user.is_authenticated:
+        return render(request, 'statistics.html', {
+            "points": models.Points.objects.all().order_by('-points'),
+        })

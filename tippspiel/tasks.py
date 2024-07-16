@@ -10,6 +10,7 @@ import requests
 import json
 from . import models
 from django.utils import timezone
+from django.contrib.auth.models import User, Group
 
 
 @periodic_task(crontab(minute=5), expires=timedelta(seconds=0))
@@ -30,12 +31,56 @@ def update_current_tab():
         file.write(str(currgroup))
 
 
+def evaluate_points():
+    for vote in models.Vote.objects.all():
+        if vote.game.match_is_finished:
+            points = 0
+            game = vote.game
+            if game.team1_score == game.team2_score:
+                data_winner = "Tie"
+            elif game.team1_score > game.team2_score:
+                data_winner = "Team1"
+            elif game.team1_score < game.team2_score:
+                data_winner = "Team2"
+            if vote.team1_score == vote.team2_score:
+                voter_winner = "Tie"
+            elif vote.team1_score > game.team2_score:
+                voter_winner = "Team1"
+            elif game.team1_score < vote.team2_score:
+                voter_winner = "Team2"
+
+            if voter_winner == data_winner:
+                points = 1
+                # RICHTIG GETIPPT
+                if vote.team1_score == game.team1_score:
+                    if vote.team2_score == game.team2_score:
+                        points = 5
+                # RICHTIGE DIFFERENZ GETIPPT
+                data_differenz = game.team1_score - game.team2_score
+                voter_differenz = vote.team1_score - vote.team2_score
+                if data_differenz == voter_differenz:
+                    points = 3
+            else:
+                points = 0
+        else:
+            points = 0
+        vote.points = points
+        vote.save()
+
+
 def evaluate_scores():
-    pass
+    evaluate_points()
+    for user in User.objects.all():
+        score = 0
+        for vote in models.Vote.objects.all().filter(user=user):
+            score += vote.points
+        user_points = models.Points.objects.get_or_create(user=user)
+        user_points[0].points = score
+        user_points[0].save()
 
 
 def update_database():
-    #url = get_json("https://api.openligadb.de/getmatchdata/em/2024/")
+    # url = get_json("https://api.openligadb.de/getmatchdata/em/2024/")
     url = get_json("https://api.openligadb.de/getmatchdata/bl2")
     for game in url:
         team1_icon_url = game['team1']['teamIconUrl']

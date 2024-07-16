@@ -29,6 +29,7 @@ class Vote(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     team1_score = models.IntegerField(default=0, null=True)
     team2_score = models.IntegerField(default=0, null=True)
+    points = models.IntegerField(default=0, null=True)
 
 
 class Points(models.Model):

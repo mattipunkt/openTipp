@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% block title %}Statistiken{% endblock %}
+{% block body %}
+    <h2>Statistiken</h2>
+    <div class="row">
+        <div class="col-2">
+            <b>Nutzername</b>
+        </div>
+        <div class="col-2">
+            <b>Punkte</b>
+        </div>
+    </div>
+    <div class="row">
+    {% for user in points %}
+        <div class="col-2">
+            {{ user.user.username }}
+        </div>
+        <div class="col-2">
+            {{ user.points }}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock body %}

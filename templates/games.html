@@ -15,7 +15,7 @@
         </div>
         <div class="col-sm-2 align-baseline">
              <div class="d-flex justify-content-evenly">
-                <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 0;">
+                <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: contain; object-position: 100% 0;">
                  {% if game.match_is_finished %}
                  	 <span>{{ game.team1_score }}</span> :
                      <span>{{ game.team2_score }}</span>
@@ -24,7 +24,7 @@
                      <span>- </span>
                  {% endif %}
                  <span></span>
-                 <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 100%;">
+                 <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: contain; object-position: 100% 100%;">
              </div>
         </div>
         <div class="col">
