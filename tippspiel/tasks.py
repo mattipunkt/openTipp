@@ -30,6 +30,10 @@ def update_current_tab():
         file.write(str(currgroup))
 
 
+def evaluate_scores():
+    pass
+
+
 def update_database():
     #url = get_json("https://api.openligadb.de/getmatchdata/em/2024/")
     url = get_json("https://api.openligadb.de/getmatchdata/bl2")
@@ -78,6 +82,7 @@ def update_database():
             new_game[0].save()
 
     update_current_tab()
+    evaluate_scores()
 
 
 def get_json(url):

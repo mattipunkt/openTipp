@@ -4,9 +4,19 @@
     Spielübersicht
 {% endblock %}
 {% block body %}
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast align-items-center text-bg-primary" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Deine Tipps wurden abgespeichert!
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
     <div class="d-flex justify-content-between">
         <h2>Tippen!</h2>
-        <button class="btn btn-primary">Änderungen speichern!</button>
+        <button class="btn btn-primary" id="btnSubmit">Änderungen speichern!</button>
     </div>
 
     <p>Hier kannst du für alle Spiele tippen!</p>
@@ -43,24 +53,37 @@
                         {{ game.team1.name }}
                     </div>
                     <div class="col-auto">
-                        <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 0;" alt="{{ game.team1.name }}-flag">
+                        <img src="{{ game.team1.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: contain; object-position: 100% 0;" alt="{{ game.team1.name }}-flag">
                     </div>
                     <div class="col-3">
                         {% with vote=user_votes_dict|get_item:game.id %}
                             {% if vote %}
                                 {% if game.match_is_finished %}
-                                    <div class="d-flex">
-                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" placeholder="{{ vote.team1.score }}" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" placeholder="{{ vote.team2.score }}" disabled>
-                                    </div>
+                                    {% if vote.team1_score is None %}
+                                        <div class="d-flex">
+                                            <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}"disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" disabled>
+                                        </div>
+                                    {% else %}
+                                        <div class="d-flex">
+                                            <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" value="{{ vote.team1_score }}" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" value="{{ vote.team2_score }}" disabled>
+                                        </div>
+                                    {% endif %}
                                 {% else %}
-                                    <div class="d-flex">
-                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}">
-                                    </div>
+                                    {% if vote.team1_score is None %}
+                                        <div class="d-flex">
+                                            <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}">
+                                        </div>
+                                    {% else %}
+                                        <div class="d-flex">
+                                            <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" value="{{ vote.team1_score }}">&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" value="{{ vote.team2_score }}" >
+                                        </div>
+                                    {% endif %}
+
                                 {% endif %}
                             {% else %}
                                 {% if game.match_is_finished %}
                                     <div class="d-flex">
-                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" placeholder="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" placeholder="-" disabled>
+                                        <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" value="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" value="-" disabled>
                                     </div>
                                 {% else %}
                                     <div class="d-flex">
@@ -71,7 +94,7 @@
                         {% endwith %}
                     </div>
                     <div class="col-auto">
-                        <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: cover; object-position: 100% 100%;">
+                        <img src="{{ game.team2.icon_url }}" class="rounded" style="height: 20px; width: 30px; object-fit: contain; object-position: 100% 100%;">
                     </div>
                     <div class="col">
                         {{ game.team2.name }}
@@ -83,7 +106,62 @@
       </div>
     {% endfor %}
     </div>
-<script>
 
+
+<script>
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+</script>
+<script>
+$('#btnSubmit').click(function(){
+    // Objekt zum Sammeln der Daten
+    let data = {};
+
+    // Sammeln der Daten aus den Inputs
+    {% for game in games %}
+        let team1_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team1.id }}').val();
+        let team2_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team2.id }}').val();
+
+        data[{{ game.id }}] = {
+            "team1_vote": team1_{{ game.id }}_vote,
+            "team2_vote": team2_{{ game.id }}_vote
+        };
+    {% endfor %}
+
+    // Ajax-Request
+    $.ajax({
+      url: "/bet/",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(data),  // JSON.stringify um das JS-Objekt in JSON zu konvertieren
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": getCookie("csrftoken")
+      },
+      success: (response) => {
+          console.log(response);
+            const toastLiveExample = document.getElementById('successToast')
+                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
+                    toastBootstrap.show()
+
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+});
 </script>
 {% endblock %}

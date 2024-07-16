@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from . import forms
 from django.contrib import messages
@@ -7,6 +8,7 @@ import asyncio
 from . import tasks
 from . import models
 from . import utils
+import json
 
 # Create your views here.
 task_id = None
@@ -125,3 +127,37 @@ def betView(request):
         else:
             messages.add_message(request, messages.INFO, "Du musst angemeldet sein, um diese Seite zu besuchen!")
             return redirect("/")
+    elif request.method == 'POST':
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        if is_ajax:
+            if request.method == 'POST':
+                data = json.load(request)
+                test = dict(data)
+                print(test)
+                for vote in test:
+                    print(vote)
+                    if models.Game.objects.get(pk=vote).match_is_finished:
+                        print("Game is finished")
+                        messages.add_message(request, messages.WARNING, "Du sollst nicht für ein Spiel tippen, das schon beendet wurde, du Schlawiner!")
+                        return JsonResponse({'status': 'Match finished!'})
+                    else:
+                        game_id = vote
+                        vote = test[vote]
+                        if vote['team1_vote'] == "":
+                            team_1_vote = None
+                        else:
+                            team_1_vote = vote['team1_vote']
+
+                        if vote['team2_vote'] == "":
+                            team_2_vote = None
+                        else:
+                            team_2_vote = vote['team2_vote']
+                        vote_obj = models.Vote.objects.get_or_create(user=request.user, game=models.Game.objects.get(pk=game_id))
+                        print(vote_obj[1])
+                        vote_obj = vote_obj[0]
+                        vote_obj.team1_score = team_1_vote
+                        vote_obj.team2_score = team_2_vote
+                        vote_obj.save()
+                return JsonResponse({'status': 'Votes registered!'})
+        else:
+            return HttpResponseBadRequest('Invalid request')
