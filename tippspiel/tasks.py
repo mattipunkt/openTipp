@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User, Group
 
 
-@periodic_task(crontab(minute=5), expires=timedelta(seconds=0))
+@periodic_task(crontab(minute='*/1'))
 def change_game():
     with open("/tmp/tipptime", "w") as file:
         file.write(str(datetime.now()))
@@ -108,21 +108,26 @@ def update_database():
         type_of_game = models.GameType.objects.get_or_create(name=game['group']['groupName'])
         matchtime = game['matchDateTime']
         matchtime = datetime.strptime(matchtime, "%Y-%m-%dT%H:%M:%S")
+        if matchtime < datetime.now():
+            is_started = True
+        else:
+            is_started = False
         if game['matchIsFinished']:
+            is_started = False
             # print('Match is finished')
             points_team1 = 0
             points_team2 = 0
             for k in game['matchResults']:
                 points_team1 = k['pointsTeam1']
                 points_team2 = k['pointsTeam2']
-            update_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime,
+            update_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, match_is_started=is_started,
                                                             type=type_of_game[0])
             update_game[0].team1_score = points_team1
             update_game[0].team2_score = points_team2
             update_game[0].match_is_finished = True
             update_game[0].save()
         else:
-            new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime,
+            new_game = models.Game.objects.get_or_create(team1=team1[0], team2=team2[0], time=matchtime, match_is_started=is_started,
                                                          type=type_of_game[0])
             new_game[0].save()
 

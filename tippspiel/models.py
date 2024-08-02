@@ -21,6 +21,7 @@ class Game(models.Model):
     team2_score = models.IntegerField(default=0)
     time = models.DateTimeField(default=None, null=True)
     match_is_finished = models.BooleanField(default=False)
+    match_is_started = models.BooleanField(default=False)
     type = models.ForeignKey(GameType, on_delete=models.CASCADE)
 
 

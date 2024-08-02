@@ -91,6 +91,7 @@ def userManager(request):
                 user = User.objects.get(pk=user_id)
                 if activate == "true":
                     user.is_active = True
+                    utils.send_activation_mail(user)
                     user.save()
                 elif activate == "false":
                     user.delete()

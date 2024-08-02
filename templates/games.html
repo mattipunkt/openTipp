@@ -9,7 +9,11 @@
         <p class="font-monospace text-uppercase"><b>{{ gtype.name }}</b></p>
     {% for game in games %}
     {% if gtype.id == game.type.id %}
-    <div class="row mb-3 align-self-center">
+        {% if game.match_is_started %}
+            <div class="row mb-3 align-self-center text-bg-info">
+        {% else %}
+            <div class="row mb-3 align-self-center">
+        {% endif %}
         <div class="col-sm-1 align-baseline">
             {{ game.team1.name }}
         </div>
@@ -32,6 +36,9 @@
         </div>
         <div class="col">
             {{ game.time }}
+            {% if game.match_is_started %}
+                <b>Spiel läuft gerade!</b>
+            {% endif %}
         </div>
     </div>
     {% endif %}

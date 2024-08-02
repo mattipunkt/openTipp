@@ -58,7 +58,7 @@
                     <div class="col-3">
                         {% with vote=user_votes_dict|get_item:game.id %}
                             {% if vote %}
-                                {% if game.match_is_finished %}
+                                {% if game.match_is_started %}
                                     {% if vote.team1_score is None %}
                                         <div class="d-flex">
                                             <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}"disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" disabled>
@@ -81,7 +81,7 @@
 
                                 {% endif %}
                             {% else %}
-                                {% if game.match_is_finished %}
+                                {% if game.match_is_started %}
                                     <div class="d-flex">
                                         <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" value="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" value="-" disabled>
                                     </div>
@@ -132,6 +132,7 @@ $('#btnSubmit').click(function(){
 
     // Sammeln der Daten aus den Inputs
     {% for game in games %}
+        {% if game.match_is_started == False %}
         let team1_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team1.id }}').val();
         let team2_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team2.id }}').val();
 
@@ -139,6 +140,7 @@ $('#btnSubmit').click(function(){
             "team1_vote": team1_{{ game.id }}_vote,
             "team2_vote": team2_{{ game.id }}_vote
         };
+        {% endif %}
     {% endfor %}
 
     // Ajax-Request
