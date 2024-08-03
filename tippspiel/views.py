@@ -173,20 +173,6 @@ def betView(request):
             return redirect("/")
 
 
-# TBC
-# More efficient way to open bets, not working yet
-def betTypeView(request, id):
-    if request.user.is_authenticated:
-        gametype = models.GameType.objects.get(pk=id)
-        games = models.Vote.objects.select_related('game').filter(game__type=gametype).filter(user=request.user)
-        return render(request, 'betschnipsel.html', {
-            "gametype": gametype,
-            "games": games,
-        })
-
-
-
-
 def statisticsView(request):
     if request.user.is_authenticated:
         return render(request, 'statistics.html', {
