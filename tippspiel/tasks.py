@@ -81,7 +81,7 @@ def evaluate_scores():
 
 def update_database():
     # url = get_json("https://api.openligadb.de/getmatchdata/em/2024/")
-    url = get_json("https://api.openligadb.de/getmatchdata/bl2")
+    url = get_json("https://api.openligadb.de/getmatchdata/bl2/2024")
     for game in url:
         team1_icon_url = game['team1']['teamIconUrl']
         if "px" in team1_icon_url:

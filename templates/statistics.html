@@ -3,22 +3,52 @@
 {% block title %}Statistiken{% endblock %}
 {% block body %}
     <h2>Statistiken</h2>
-    <div class="row">
-        <div class="col-2">
-            <b>Nutzername</b>
+    <br>
+    <div class="list-group list-group-flush">
+        <div>
+            <div class="d-flex justify-content-between">
+                <b><div>Nutzer</div></b>
+                <b><span>Punkte</span></b>
+            </div>
         </div>
-        <div class="col-2">
-            <b>Punkte</b>
-        </div>
+        {% for user in points %}
+        <a type="button" id="userModal-{{ user.user.id }}" href="/userStats/{{ user.user.id }}" class="list-group-item list-group-item-action">
+            <div class="d-flex justify-content-between">
+                <div>
+                    {{ user.user.username }}
+                </div>
+                <span>
+                    {{ user.points }}
+                </span>
+            </div>
+        </a>
+        {% endfor %}
     </div>
-    <div class="row">
-    {% for user in points %}
-        <div class="col-2">
-            {{ user.user.username }}
-        </div>
-        <div class="col-2">
-            {{ user.points }}
-        </div>
-    {% endfor %}
+
+    <div
+      class="modal fade"
+      id="userModalView"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="modalTitleId"
+      aria-hidden="true"
+    ><div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content"></div>
+      </div>
     </div>
+
+    <div id="theModal" class="modal fade text-center">
+      <div class="modal-dialog">
+        <div class="modal-content"></div>
+      </div>
+    </div>
+
+    <script>
+        {% for user in points %}
+    $('#userModal-{{ user.user.id }}').on('click', function(e){
+      e.preventDefault();
+      $('#userModalView').modal('show').find('.modal-content').load($(this).attr('href'));
+    });
+        {% endfor %}
+    </script>
 {% endblock body %}

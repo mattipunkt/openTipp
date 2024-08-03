@@ -10,6 +10,8 @@ from . import models
 from . import utils
 import json
 
+from .models import Points
+
 # Create your views here.
 task_id = None
 
@@ -114,19 +116,8 @@ def gamesView(request):
     })
 
 
-def betView(request):
+def betSubmussion(request):
     if request.method == 'GET':
-        if request.user.is_authenticated:
-            user_votes = models.Vote.objects.select_related('game').filter(user=request.user)
-            user_votes_dict = {vote.game.id: vote for vote in user_votes}
-            return render(request, 'bet.html', {
-                # "activegroup": utils.get_current_tab(),
-                "user_votes_dict": user_votes_dict,
-                "gametype": models.GameType.objects.all(),
-                "games": models.Game.objects.all(),
-            })
-        else:
-            messages.add_message(request, messages.INFO, "Du musst angemeldet sein, um diese Seite zu besuchen!")
             return redirect("/")
     elif request.method == 'POST':
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -166,8 +157,48 @@ def betView(request):
             return HttpResponseBadRequest('Invalid request')
 
 
+def betView(request):
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+            user_votes = models.Vote.objects.select_related('game').filter(user=request.user)
+            user_votes_dict = {vote.game.id: vote for vote in user_votes}
+            return render(request, 'bet.html', {
+                # "activegroup": utils.get_current_tab(),
+                "user_votes_dict": user_votes_dict,
+                "gametype": models.GameType.objects.all(),
+                "games": models.Game.objects.all(),
+            })
+        else:
+            messages.add_message(request, messages.INFO, "Du musst angemeldet sein, um diese Seite zu besuchen!")
+            return redirect("/")
+
+
+# TBC
+# More efficient way to open bets, not working yet
+def betTypeView(request, id):
+    if request.user.is_authenticated:
+        gametype = models.GameType.objects.get(pk=id)
+        games = models.Vote.objects.select_related('game').filter(game__type=gametype).filter(user=request.user)
+        return render(request, 'betschnipsel.html', {
+            "gametype": gametype,
+            "games": games,
+        })
+
+
+
+
 def statisticsView(request):
     if request.user.is_authenticated:
         return render(request, 'statistics.html', {
             "points": models.Points.objects.all().order_by('-points'),
         })
+
+
+def statisticsUserView(request, id):
+    user = User.objects.get(pk=id)
+    votes = models.Vote.objects.select_related('game').filter(user=user)
+    finished = votes.filter(game__match_is_finished=True)
+    return render(request,'userStats.html', {
+        "points": Points.objects.get(user=user),
+        "votes": finished,
+    })

@@ -1,0 +1,46 @@
+{% load django_bootstrap5 %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% bootstrap_messages %}
+<div class="modal-header">
+    Statistiken von {{ points.user.username }}<button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="modal"
+    aria-label="Close"
+  ></button>
+</div>
+<div class="modal-body">
+    <ul class="list-group list-group-flush">
+        {% for vote in votes %}
+        <li class="list-group-item">
+              <div class="d-flex justify-content-between">
+                  <div>
+                      {{ vote.game.team1.name }}
+                  </div>
+                  <div>
+                      {{ vote.team1_score }} : {{ vote.team2_score }} ({{ vote.game.team1_score }} : {{ vote.game.team2_score }})
+                  </div>
+                  <div>
+                      {{ vote.game.team2.name}}
+                  </div>
+                  <div>
+                      <b>{{ vote.points }}</b>
+                  </div>
+              </div>
+        </li>
+        {% endfor %}
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <b>Punkte gesamt</b>
+                </div>
+                <div>
+                    <b>{{ points.points }}</b>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+</div>

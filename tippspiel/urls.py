@@ -14,4 +14,6 @@ urlpatterns = [
     path('games/', views.gamesView, name="games"),
     path('bet/', views.betView, name="bet"),
     path('stats/', views.statisticsView, name="stats"),
+    path('userStats/<int:id>', views.statisticsUserView, name="userStats"),
+    path('betPush/', views.betSubmussion, name="betSubmussion"),
 ]

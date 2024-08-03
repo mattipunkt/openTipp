@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>
         {% block title %}
 
@@ -47,8 +48,6 @@
                     </li>
                     {% endif %}
                 </ul>
-            </div>
-            <div class="collapse navbar-collapse" id="collapsibleNavId">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item">

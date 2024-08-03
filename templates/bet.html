@@ -5,12 +5,25 @@
 {% endblock %}
 {% block body %}
     <div class="toast-container position-fixed top-0 end-0 p-3">
-        <div class="toast align-items-center text-bg-primary" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast align-items-center text-bg-success" id="successToast" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
                     Deine Tipps wurden abgespeichert!
                 </div>
                 <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div class="toast align-items-center text-bg-warning" id="waitToast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+            <div class="d-flex">
+                <div class="toast-body">
+                    
+                    <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    Deine Tipps werden gespeichert, bitte warten!
+                </div>
             </div>
         </div>
     </div>
@@ -24,16 +37,8 @@
 
 
 
-    <!-- NAVBAR for GAME TYPES
-        <ul class="nav nav-tabs" id="myTab">
-        {% for gtype in gametype %}
-            <li class="nav-item">
-                <a href="#gtype-{{ gtype.id }}" class="nav-link" data-bs-toggle="tab">{{ gtype.name }}</a>
-            </li>
-        {% endfor %}
-        </ul>
-     -->
-    <ul class="nav nav-tabs" role="tablist">
+
+    <ul class="nav nav-tabs" role="tablist" id="typetab">
         {% for gtype in gametype %}
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="gtype-tab-{{ gtype.id }}" data-bs-toggle="tab" href="#gtype-{{ gtype.id }}" role="tab" aria-controls="simple-tabpanel-0" aria-selected="true">{{ gtype.name }}</a>
@@ -58,7 +63,7 @@
                     <div class="col-3">
                         {% with vote=user_votes_dict|get_item:game.id %}
                             {% if vote %}
-                                {% if game.match_is_started %}
+                                {% if game.match_is_started or game.match_is_finished %}
                                     {% if vote.team1_score is None %}
                                         <div class="d-flex">
                                             <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}"disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" disabled>
@@ -81,7 +86,7 @@
 
                                 {% endif %}
                             {% else %}
-                                {% if game.match_is_started %}
+                                {% if game.match_is_started or game.match_is_finished %}
                                     <div class="d-flex">
                                         <input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team1.id }}" value="-" disabled>&nbsp;&nbsp;:&nbsp;&nbsp;<input class="form-control" maxlength="2" size="2" id="game-{{ game.id }}-team-{{ game.team2.id }}" value="-" disabled>
                                     </div>
@@ -127,12 +132,16 @@
 </script>
 <script>
 $('#btnSubmit').click(function(){
+    const toastWait = document.getElementById('waitToast')
+    const toastWaitBootstrap = bootstrap.Toast.getOrCreateInstance(toastWait)
+        toastWaitBootstrap.show()
+
     // Objekt zum Sammeln der Daten
     let data = {};
 
     // Sammeln der Daten aus den Inputs
     {% for game in games %}
-        {% if game.match_is_started == False %}
+        {% if game.match_is_finished == False %}
         let team1_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team1.id }}').val();
         let team2_{{ game.id }}_vote = $('#game-{{ game.id }}-team-{{ game.team2.id }}').val();
 
@@ -143,9 +152,10 @@ $('#btnSubmit').click(function(){
         {% endif %}
     {% endfor %}
 
+
     // Ajax-Request
     $.ajax({
-      url: "/bet/",
+      url: "/betPush/",
       type: "POST",
       contentType: "application/json",
       data: JSON.stringify(data),  // JSON.stringify um das JS-Objekt in JSON zu konvertieren
@@ -155,6 +165,7 @@ $('#btnSubmit').click(function(){
       },
       success: (response) => {
           console.log(response);
+          toastWaitBootstrap.hide()
             const toastLiveExample = document.getElementById('successToast')
                 const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample)
                     toastBootstrap.show()
