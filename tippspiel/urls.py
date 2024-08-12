@@ -16,4 +16,5 @@ urlpatterns = [
     path('stats/', views.statisticsView, name="stats"),
     path('userStats/<int:id>', views.statisticsUserView, name="userStats"),
     path('betPush/', views.betSubmussion, name="betSubmussion"),
+    path('setup/', views.setup, name="setup"),
 ]

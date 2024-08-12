@@ -1,0 +1,40 @@
+{% load django_bootstrap5 %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup - openTipp</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container mt-5">
+        <h4>
+            Ersteinrichtung
+        </h4>
+        <form action="/setup/" method="post">
+            {% csrf_token %}
+            {% bootstrap_form setupForm layout="floating" %}
+            {% bootstrap_button button_type="submit" content="Speichern!" %}
+        </form>
+    </div>
+</body>
+<script>
+    // Set theme to the user's preferred color scheme
+function updateTheme() {
+  const colorMode = window.matchMedia("(prefers-color-scheme: dark)").matches ?
+    "dark" :
+    "light";
+  document.querySelector("html").setAttribute("data-bs-theme", colorMode);
+}
+
+// Set theme on load
+updateTheme()
+
+// Update theme when the preferred scheme changes
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme)
+</script>
+
+</html>

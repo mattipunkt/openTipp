@@ -9,6 +9,7 @@ from . import tasks
 from . import models
 from . import utils
 import json
+import configparser
 
 from .models import Points
 
@@ -20,6 +21,33 @@ def index(request):
     return render(request, 'base.html', {
         "games": models.Game.objects.all(),
     })
+
+
+def setup(request):
+    if utils.config_exists() == True:
+            return redirect('/')
+    if request.method == "POST":
+        form = forms.SetupForm(request.POST)
+        if form.is_valid():
+            print("=== Create Super User ===")
+            su = User.objects.create_superuser(request.POST.get('admin_username'), request.POST.get('admin_email'), request.POST.get('admin_password'))
+            su.first_name = request.POST.get('admin_first_name')
+            su.save()
+            print("=== Create init config ===")
+            utils.set_config('refresh_interval', request.POST.get('intervall'))
+            utils.set_config('setup_done', True)
+
+            return redirect('/')
+        else: 
+            return redirect('/setup/')
+    else:
+        print(utils.config_exists())
+        if utils.config_exists() == False:
+            return render(request, 'setup.html', {
+                "setupForm": forms.SetupForm,
+            })
+        elif utils.config_exists() == True:
+            return redirect('/')
 
 
 def register(request):
